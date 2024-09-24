@@ -2,8 +2,9 @@
 
 # 🎯 Project Overview
   - This project aims to predict the strength of concrete using a variety of machine learning algorithms.
-  -  This includes regression and unsupervised supervision models to provide accurate analyses and predictions about the strength of concrete using available data.
-  -   Several algorithms were applied with comparisons between them, and graphs were provided for each model to improve understanding of the performance and accuracy of the predictions.
+  - This includes regression and unsupervised supervision models to provide accurate analyses and predictions about the strength of concrete using available data.
+  - Several algorithms were applied with comparisons between them, and graphs were provided for each model to improve understanding of the performance and accuracy of the 
+    predictions.
 
 # 📊 Data Description
  - The dataset contains the following features:
@@ -45,7 +46,8 @@
   - Other accuracy metrics such as Mean Absolute Error and Root Mean Square Error (RMSE) were used to evaluate performance.
 
 # 📈Explanatory Charts
-  - Charts are provided to illustrate the results before and after applying each algorithm, providing a visual understanding of the impact of each model on the data and its accuracy.
+  - Charts are provided to illustrate the results before and after applying each algorithm, providing a visual understanding of the impact of each model on the data and its 
+    accuracy.
 
 # 🧰 Initial requirements to run the project
   - Python 3.8+
@@ -63,13 +65,12 @@
 
 # 📂 Project structure
   - Concrete-Strength-Prediction/
-  │
-  ├── data
-  ├── models
-  ├── notebooks
-  ├── images
-  ├── README.md
-  └── main.py
+  ├── data/                             # Contains dataset files
+
+  ├── notebooks/                         # Jupyter Notebooks for data exploration and model development
+  
+  └── README.md/                         # Project overview and instructions
+  
 
 # 🤖 Project conclusions
   - This project highlights the great benefits of using machine learning in data analysis and prediction.
@@ -85,4 +86,13 @@
 
 # 🤝 Contributing
  - Contributions are welcome! If you'd like to improve the project, feel free to open a pull request or submit issues.
+
+# 💻 Authors
+ - Abdul Rahman Ahmed 
+
+ - abdulrahmannassar202@gmail.com
+
+# 📌 Project link
+- https://github.com/Abdulrahman181/Concrete-Strength-Prediction
+
 
