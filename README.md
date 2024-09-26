@@ -65,11 +65,11 @@
 
 # 📂 Project structure
   - Concrete-Strength-Prediction/
-    ├── data/                             # Contains dataset files
+    ├── data                             
 
-    ├── notebooks/                         # Jupyter Notebooks for data exploration and model development
+    ├── notebooks                         
   
-    └── README.md/                         # Project overview and instructions
+    └── README.md                        
   
 
 # 🤖 Project conclusions
