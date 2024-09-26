@@ -64,7 +64,8 @@
   - View graphs and compare results.
 
 # 📂 Project structure
-  - Concrete-Strength-Prediction/
+  - Concrete-Strength-Prediction
+    
     ├── data                             
 
     ├── notebooks                         
