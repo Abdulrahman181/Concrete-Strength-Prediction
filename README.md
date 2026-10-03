@@ -1,36 +1,75 @@
 # Concrete Strength Prediction
 
-This repository contains one Jupyter notebook for exploratory plots and regression experiments on the Yeh concrete compressive-strength dataset. The checked-in notebook analyzes the data and compares a train/test split for linear regression, random forest, and (optionally) XGBoost.
+An educational regression example for estimating the compressive strength (`csMPa`) of concrete mixtures from the Yeh dataset schema. The repository contains an exploratory notebook and a small Python training module. It does **not** include a dataset, trained model, verified data source, benchmark result, or license grant.
 
-## Dataset
+> **Research/education only.** This project is not validated or certified for structural design, construction decisions, material acceptance, or other safety-critical use. Model output is not engineering advice and must not replace applicable standards, laboratory testing, or a qualified professional.
 
-The dataset is **not included** in this repository. The notebook expects a CSV named `Concrete_Data_Yeh.csv` in either the repository root or a `data/` subdirectory, relative to the Jupyter working directory. Obtain the dataset from a source you are authorized to use; this repository does not provide or verify a download source. The CSV must contain these columns:
+## Data
 
-`cement`, `slag`, `flyash`, `water`, `superplasticizer`, `coarseaggregate`, `fineaggregate`, `age`, and `csMPa`.
+Obtain a CSV you are authorized to use and place it at `data/Concrete_Data_Yeh.csv` or `Concrete_Data_Yeh.csv` in the repository root. You may also pass an explicit path with `--data`. The repository does not endorse or verify a download source or dataset license.
 
-If the file is absent or required columns are missing, the notebook reports a clear error instead of silently using a machine-specific path.
+The input must contain numeric columns `cement`, `slag`, `flyash`, `water`, `superplasticizer`, `coarseaggregate`, `fineaggregate`, `age`, and `csMPa`. Features must be finite and non-negative; age and strength must be positive. Additional columns are ignored, so identifiers or unrelated measurements cannot become model inputs. The training utility requires at least eight distinct feature recipes to form grouped partitions. See [`schemas/dataset.schema.json`](schemas/dataset.schema.json) for the machine-readable column contract.
 
-## Setup and use
+## Setup
 
-Python 3.8 or newer is recommended. From the repository root, install the notebook's core dependencies and start Jupyter:
+Python 3.10–3.12 is supported. Install the project and optional notebook/test tools in a virtual environment:
 
 ```bash
-python -m pip install numpy pandas matplotlib seaborn scikit-learn jupyter
+python -m venv .venv
+. .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[notebook,test]'
+```
+
+Run the notebook from the repository root:
+
+```bash
 jupyter notebook "Concrete Strength Prediction.ipynb"
 ```
 
-Run cells from top to bottom after placing the CSV in one of the supported locations. XGBoost is an optional final experiment; install it separately with `python -m pip install xgboost` if desired. Without it, the linear-regression and random-forest sections remain available.
+Or run the reproducible command-line workflow:
 
-The notebook uses a fixed `random_state` for its train/test split and random forest. Its reported metrics are dependent on the supplied dataset and installed library versions. No performance result is asserted here: the data file is not present in this repository, and this change does not validate model performance.
+```bash
+python -m concrete_strength --data data/Concrete_Data_Yeh.csv
+```
 
-## Scope and limitations
+If the file is in one of the default repository locations, `--data` can be omitted. Errors avoid printing absolute input paths. A fixed default seed (`42`) is used; supply `--random-state` to change it. Results can still vary with dataset contents, dependency versions, and platform.
 
-The notebook includes exploratory summaries/plots plus regression; the earlier README listed classification and clustering algorithms that are not implemented in the checked-in notebook. No dataset, trained model, or dependency lockfile is provided. The notebook's saved cell outputs have been cleared so old results are not mistaken for a current run.
+## Evaluation and leakage controls
 
-## Project structure
+The approved eight mixture features are predictors and `csMPa` is the target. Exact duplicate feature recipes are grouped into a single partition, so the same recipe cannot appear in both fitting and evaluation data. A deterministic grouped split targets approximately 60% train, 20% validation, and 20% test (actual proportions depend on the number and distribution of unique recipes).
 
-- `Concrete Strength Prediction.ipynb` — analysis and modeling notebook
-- `README.md` — setup, input data requirements, and limitations
+Linear regression and a seeded, single-worker random forest are fit on training rows. The model is selected by **validation MAE**; the selected model is then refit on train plus validation rows and scored once on the untouched test partition. The test score is not used for model choice or tuning. Printed metrics are aggregate MAE, RMSE, and R² only; no row-level predictions or input rows are written to disk by default. Do not treat a single holdout score as external validation or a performance guarantee.
+
+To run checks locally:
+
+```bash
+python -m pytest
+ruff check .
+python -m compileall -q concrete_strength.py tests
+```
+
+GitHub Actions runs these checks on pull requests and pushes for Python 3.10, 3.11, and 3.12. The notebook is committed without saved cell outputs.
+
+## Optional model export and privacy
+
+By default, no model file or metrics file is created. To explicitly export the fitted model and its data-free schema/version/seed metadata:
+
+```bash
+python -m concrete_strength --data data/Concrete_Data_Yeh.csv --artifact-dir artifacts
+```
+
+The metadata contract is [`schemas/model-metadata.schema.json`](schemas/model-metadata.schema.json); the metadata contains no dataset path, row-level data, or performance metrics. The serialized model can nevertheless reveal information about its training data. Keep it private when appropriate. **Never load a model pickle from an untrusted source**: Python pickle deserialization can execute code. No model-loading command is provided by this project.
+
+The input dataset is never copied into the repository or artifact directory by the code. Notebook displays and plots may still reveal characteristics of whatever dataset you load; review and clear any outputs before sharing a notebook, and do not commit private source data.
+
+## Project files
+
+- `concrete_strength.py` — validation, recipe-grouped splitting, train/validation/test workflow, CLI, and opt-in artifact export.
+- `Concrete Strength Prediction.ipynb` — exploratory summaries/plots and use of the shared evaluation module.
+- `schemas/` — input and model-metadata schemas.
+- `tests/` — synthetic-data tests (no actual dataset or performance claim).
+- `.github/workflows/ci.yml` — automated checks.
 
 ## Author
 
