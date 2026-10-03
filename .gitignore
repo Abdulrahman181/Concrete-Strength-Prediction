@@ -1,0 +1,16 @@
+# Python and tooling caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Locally supplied source data and explicitly exported models
+/Concrete_Data_Yeh.csv
+/data/Concrete_Data_Yeh.csv
+/artifacts/
+
+# Local credentials/configuration
+.env
+.env.*
+!.env.example

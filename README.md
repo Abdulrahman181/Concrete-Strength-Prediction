@@ -1,100 +1,76 @@
-## Concrete Strength Prediction Project Using Algorithms and Machine Learning
+# Concrete Strength Prediction
 
-# 🎯 Project Overview
-   - This project aims to predict the strength of concrete using a variety of machine learning algorithms.
-   - This includes regression and unsupervised supervision models to provide accurate analyses and predictions about the strength of concrete using available data.
-   - Several algorithms were applied with comparisons between them, and graphs were provided for each model to improve understanding of the performance and accuracy of the 
-     predictions.
+An educational regression example for estimating the compressive strength (`csMPa`) of concrete mixtures from the Yeh dataset schema. The repository contains an exploratory notebook and a small Python training module. It does **not** include a dataset, trained model, verified data source, benchmark result, or license grant.
 
-# 📊 Data Description
-  - The dataset contains the following features:
-     - cement: Cement component (kg/m³)
-     - slag: Blast furnace slag component (kg/m³)
-     - flyash: Fly ash component (kg/m³)
-     - water: Water component (kg/m³)
-     - superplasticizer: Superplasticizer component (kg/m³)
-     - coarseaggregate: Coarse aggregate component (kg/m³)
-     - fineaggregate: Fine aggregate component (kg/m³)
-     - age: Age of concrete in days
-     - csMPa: Compressive strength of concrete (target variable in MPa)
+> **Research/education only.** This project is not validated or certified for structural design, construction decisions, material acceptance, or other safety-critical use. Model output is not engineering advice and must not replace applicable standards, laboratory testing, or a qualified professional.
 
- 
- # ⚙️ Machine Learning Models Used
-   - Regression Models:
-     - Linear Regression
-     - Logistic Regression
-     - K-Nearest Neighbors (KNN)
-     - Naive Bayes
-     - Support Vector Machine (SVM) 
-     - Decision Tree 
-     - Random Forest
-   - Clustering Algorithms:
-     - KMeans
-     - Hierarchical Clustering
-     - DBSCAN
-      
-# 🔬 Features and Innovations
-  - A comprehensive comparison between different algorithms to obtain the most accurate model.
-  - Multidimensional analysis using classifications and clusters to provide deeper insight.
-  - Explanatory charts before and after applying each algorithm, helping to understand how it affects the data.
-  - Focus on details in the results and predictions.
+## Data
 
-# 📈 Performance Results
-  - Best performance achieved using:
-    - Logistic Regression: Accuracy up to 1.00 🎯
-    - Linear Regression: R² value reached 0.53 🔍
-  - Other accuracy metrics such as Mean Absolute Error and Root Mean Square Error (RMSE) were used to evaluate performance.
+Obtain a CSV you are authorized to use and place it at `data/Concrete_Data_Yeh.csv` or `Concrete_Data_Yeh.csv` in the repository root. You may also pass an explicit path with `--data`. The repository does not endorse or verify a download source or dataset license.
 
-# 🧮Explanatory Charts
- - Charts are provided to illustrate the results before and after applying each algorithm, providing a visual understanding of the impact of each model on the data and its 
-   accuracy.
+The input must contain numeric columns `cement`, `slag`, `flyash`, `water`, `superplasticizer`, `coarseaggregate`, `fineaggregate`, `age`, and `csMPa`. Features must be finite and non-negative; age and strength must be positive. Additional columns are ignored, so identifiers or unrelated measurements cannot become model inputs. The training utility requires at least eight distinct feature recipes to form grouped partitions. See [`schemas/dataset.schema.json`](schemas/dataset.schema.json) for the machine-readable column contract.
 
-# 🧰 Initial requirements to run the project
-  - Python 3.8+
-  - Required libraries:
-    - numpy
-    - pandas
-    - scikit-learn
-    - matplotlib
-    - seaborn
+## Setup
 
-# 🚀 How to use
-  - Import and process data.
-  - Apply different algorithms and evaluate performance using accuracy metrics.
-  - View graphs and compare results.
+Python 3.10–3.12 is supported. Install the project and optional notebook/test tools in a virtual environment:
 
-# 📂 Project structure
-  - Concrete-Strength-Prediction
-    
-    ├── data                             
+```bash
+python -m venv .venv
+. .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[notebook,test]'
+```
 
-    ├── notebooks                         
-  
-    └── README.md                        
-  
+Run the notebook from the repository root:
 
-# 💡 Project conclusions
-   - This project highlights the great benefits of using machine learning in data analysis and prediction.
-   - It presents a set of models that can be used to predict the strength of concrete, with a detailed comparison of the results of each model.
+```bash
+jupyter notebook "Concrete Strength Prediction.ipynb"
+```
 
-# 🔧 Future Improvements
-   - Experiment with more complex models such as XGBoost and LightGBM.
-   - Improved data processing and increased scaling to handle data.
-   - Explore other methods of performance evaluation such as using Cross-Validation.
+Or run the reproducible command-line workflow:
 
-# 🌟 Closing Remarks
-   - This project highlights the importance of applying machine learning in civil engineering and provides a deep understanding of how to improve construction processes
-     using intelligent data analysis.
+```bash
+python -m concrete_strength --data data/Concrete_Data_Yeh.csv
+```
 
-# 🤝 Contributing
-  - Contributions are welcome! If you'd like to improve the project, feel free to open a pull request or submit issues.
+If the file is in one of the default repository locations, `--data` can be omitted. Errors avoid printing absolute input paths. A fixed default seed (`42`) is used; supply `--random-state` to change it. Results can still vary with dataset contents, dependency versions, and platform.
 
-# 💻 Authors
-  - Abdul Rahman Ahmed 
+## Evaluation and leakage controls
 
-  - abdulrahmannassar202@gmail.com
+The approved eight mixture features are predictors and `csMPa` is the target. Exact duplicate feature recipes are grouped into a single partition, so the same recipe cannot appear in both fitting and evaluation data. A deterministic grouped split targets approximately 60% train, 20% validation, and 20% test (actual proportions depend on the number and distribution of unique recipes).
 
-# 📌 Project link
-  - https://github.com/Abdulrahman181/Concrete-Strength-Prediction
+Linear regression and a seeded, single-worker random forest are fit on training rows. The model is selected by **validation MAE**; the selected model is then refit on train plus validation rows and scored once on the untouched test partition. The test score is not used for model choice or tuning. Printed metrics are aggregate MAE, RMSE, and R² only; no row-level predictions or input rows are written to disk by default. Do not treat a single holdout score as external validation or a performance guarantee.
 
+To run checks locally:
 
+```bash
+python -m pytest
+ruff check .
+python -m compileall -q concrete_strength.py tests
+```
+
+GitHub Actions runs these checks on pull requests and pushes for Python 3.10, 3.11, and 3.12. The notebook is committed without saved cell outputs.
+
+## Optional model export and privacy
+
+By default, no model file or metrics file is created. To explicitly export the fitted model and its data-free schema/version/seed metadata:
+
+```bash
+python -m concrete_strength --data data/Concrete_Data_Yeh.csv --artifact-dir artifacts
+```
+
+The metadata contract is [`schemas/model-metadata.schema.json`](schemas/model-metadata.schema.json); the metadata contains no dataset path, row-level data, or performance metrics. The serialized model can nevertheless reveal information about its training data. Keep it private when appropriate. **Never load a model pickle from an untrusted source**: Python pickle deserialization can execute code. No model-loading command is provided by this project.
+
+The input dataset is never copied into the repository or artifact directory by the code. Notebook displays and plots may still reveal characteristics of whatever dataset you load; review and clear any outputs before sharing a notebook, and do not commit private source data.
+
+## Project files
+
+- `concrete_strength.py` — validation, recipe-grouped splitting, train/validation/test workflow, CLI, and opt-in artifact export.
+- `Concrete Strength Prediction.ipynb` — exploratory summaries/plots and use of the shared evaluation module.
+- `schemas/` — input and model-metadata schemas.
+- `tests/` — synthetic-data tests (no actual dataset or performance claim).
+- `.github/workflows/ci.yml` — automated checks.
+
+## Author
+
+Abdul Rahman Ahmed

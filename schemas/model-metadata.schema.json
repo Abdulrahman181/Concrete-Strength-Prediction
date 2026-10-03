@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Abdulrahman181/Concrete-Strength-Prediction/blob/main/schemas/model-metadata.schema.json",
+  "title": "Concrete strength model artifact metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format_version",
+    "model_file",
+    "model_sha256",
+    "model_name",
+    "feature_columns",
+    "target_column",
+    "random_state",
+    "split_strategy",
+    "selection_metric"
+  ],
+  "properties": {
+    "format_version": { "const": 1 },
+    "model_file": { "const": "model.pkl" },
+    "model_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "model_name": { "enum": ["linear_regression", "random_forest"] },
+    "feature_columns": {
+      "type": "array",
+      "const": ["cement", "slag", "flyash", "water", "superplasticizer", "coarseaggregate", "fineaggregate", "age"]
+    },
+    "target_column": { "const": "csMPa" },
+    "random_state": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+    "split_strategy": { "type": "string", "minLength": 1 },
+    "selection_metric": { "const": "validation_mae" }
+  }
+}

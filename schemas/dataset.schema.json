@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Abdulrahman181/Concrete-Strength-Prediction/blob/main/schemas/dataset.schema.json",
+  "title": "Concrete strength model input row",
+  "description": "Expected columns in Concrete_Data_Yeh.csv; extra CSV columns are ignored by the training code.",
+  "type": "object",
+  "required": ["cement", "slag", "flyash", "water", "superplasticizer", "coarseaggregate", "fineaggregate", "age", "csMPa"],
+  "properties": {
+    "cement": { "type": "number", "minimum": 0 },
+    "slag": { "type": "number", "minimum": 0 },
+    "flyash": { "type": "number", "minimum": 0 },
+    "water": { "type": "number", "minimum": 0 },
+    "superplasticizer": { "type": "number", "minimum": 0 },
+    "coarseaggregate": { "type": "number", "minimum": 0 },
+    "fineaggregate": { "type": "number", "minimum": 0 },
+    "age": { "type": "number", "exclusiveMinimum": 0 },
+    "csMPa": { "type": "number", "exclusiveMinimum": 0 }
+  },
+  "additionalProperties": true
+}
