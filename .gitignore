@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local datasets and generated artifacts (the source data is not committed)
+data/*.csv
+data/*.xls
+data/*.xlsx
+outputs/

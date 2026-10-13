@@ -1,100 +1,58 @@
-## Concrete Strength Prediction Project Using Algorithms and Machine Learning
+# Concrete Strength Prediction
 
-# 🎯 Project Overview
-   - This project aims to predict the strength of concrete using a variety of machine learning algorithms.
-   - This includes regression and unsupervised supervision models to provide accurate analyses and predictions about the strength of concrete using available data.
-   - Several algorithms were applied with comparisons between them, and graphs were provided for each model to improve understanding of the performance and accuracy of the 
-     predictions.
+A small, reproducible scikit-learn workflow for predicting concrete compressive strength (`csMPa`) from the Yeh concrete dataset. The repository currently contains the cleaned notebook and validation tooling; **the input dataset is not included**.
 
-# 📊 Data Description
-  - The dataset contains the following features:
-     - cement: Cement component (kg/m³)
-     - slag: Blast furnace slag component (kg/m³)
-     - flyash: Fly ash component (kg/m³)
-     - water: Water component (kg/m³)
-     - superplasticizer: Superplasticizer component (kg/m³)
-     - coarseaggregate: Coarse aggregate component (kg/m³)
-     - fineaggregate: Fine aggregate component (kg/m³)
-     - age: Age of concrete in days
-     - csMPa: Compressive strength of concrete (target variable in MPa)
+## Dataset
 
- 
- # ⚙️ Machine Learning Models Used
-   - Regression Models:
-     - Linear Regression
-     - Logistic Regression
-     - K-Nearest Neighbors (KNN)
-     - Naive Bayes
-     - Support Vector Machine (SVM) 
-     - Decision Tree 
-     - Random Forest
-   - Clustering Algorithms:
-     - KMeans
-     - Hierarchical Clustering
-     - DBSCAN
-      
-# 🔬 Features and Innovations
-  - A comprehensive comparison between different algorithms to obtain the most accurate model.
-  - Multidimensional analysis using classifications and clusters to provide deeper insight.
-  - Explanatory charts before and after applying each algorithm, helping to understand how it affects the data.
-  - Focus on details in the results and predictions.
+Place the CSV at `data/Concrete_Data_Yeh.csv`, or point the notebook at another file with the `CONCRETE_DATA_PATH` environment variable:
 
-# 📈 Performance Results
-  - Best performance achieved using:
-    - Logistic Regression: Accuracy up to 1.00 🎯
-    - Linear Regression: R² value reached 0.53 🔍
-  - Other accuracy metrics such as Mean Absolute Error and Root Mean Square Error (RMSE) were used to evaluate performance.
+```bash
+export CONCRETE_DATA_PATH=/absolute/path/to/Concrete_Data_Yeh.csv
+```
 
-# 🧮Explanatory Charts
- - Charts are provided to illustrate the results before and after applying each algorithm, providing a visual understanding of the impact of each model on the data and its 
-   accuracy.
+The CSV must contain these columns:
 
-# 🧰 Initial requirements to run the project
-  - Python 3.8+
-  - Required libraries:
-    - numpy
-    - pandas
-    - scikit-learn
-    - matplotlib
-    - seaborn
+`cement`, `slag`, `flyash`, `water`, `superplasticizer`, `coarseaggregate`, `fineaggregate`, `age`, and `csMPa`.
 
-# 🚀 How to use
-  - Import and process data.
-  - Apply different algorithms and evaluate performance using accuracy metrics.
-  - View graphs and compare results.
+The notebook fails early with an actionable error when the file is missing, required columns are absent, values are non-numeric, or missing values remain after loading. See [`data/README.md`](data/README.md) for the same contract.
 
-# 📂 Project structure
-  - Concrete-Strength-Prediction
-    
-    ├── data                             
+## Workflow and safeguards
 
-    ├── notebooks                         
-  
-    └── README.md                        
-  
+- Duplicate rows are removed before splitting and the resulting index is reset.
+- A fixed `random_state=42` makes the train/test split and random forest reproducible.
+- The test set is held out with `train_test_split(test_size=0.2)`.
+- Scaling is inside a scikit-learn `Pipeline`, so it is fitted only on training data; no transformation is fitted on the full dataset.
+- Metrics are calculated on the held-out test set using R², MAE, and RMSE. A single split is not a substitute for cross-validation.
+- Notebook outputs are intentionally cleared so committed results cannot be mistaken for a fresh run.
 
-# 💡 Project conclusions
-   - This project highlights the great benefits of using machine learning in data analysis and prediction.
-   - It presents a set of models that can be used to predict the strength of concrete, with a detailed comparison of the results of each model.
+## Run
 
-# 🔧 Future Improvements
-   - Experiment with more complex models such as XGBoost and LightGBM.
-   - Improved data processing and increased scaling to handle data.
-   - Explore other methods of performance evaluation such as using Cross-Validation.
+Use Python 3.9 or newer. From the repository root:
 
-# 🌟 Closing Remarks
-   - This project highlights the importance of applying machine learning in civil engineering and provides a deep understanding of how to improve construction processes
-     using intelligent data analysis.
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+python validate_repo.py
+jupyter notebook "Concrete Strength Prediction.ipynb"
+```
 
-# 🤝 Contributing
-  - Contributions are welcome! If you'd like to improve the project, feel free to open a pull request or submit issues.
+`validate_repo.py` checks Python and notebook syntax, rejects stale notebook outputs, and detects Windows-specific paths. Ruff can also be run with:
 
-# 💻 Authors
-  - Abdul Rahman Ahmed 
+```bash
+ruff check .
+```
 
-  - abdulrahmannassar202@gmail.com
+The notebook cannot complete until a compatible dataset is supplied. This repository does not claim model scores without that input.
 
-# 📌 Project link
-  - https://github.com/Abdulrahman181/Concrete-Strength-Prediction
+## Project files
 
+- `Concrete Strength Prediction.ipynb` — portable EDA and deterministic baseline comparison (linear regression and random forest).
+- `requirements.txt` — runtime and validation dependencies.
+- `validate_repo.py` — dependency-light static validation.
+- `data/README.md` — input data contract.
+- `ENGINEERING_REVIEW.md` — audit findings, fixes, and validation evidence.
 
+## License and attribution
+
+The original project and dataset attribution should be confirmed by the repository owner before redistribution. No dataset is bundled here.
