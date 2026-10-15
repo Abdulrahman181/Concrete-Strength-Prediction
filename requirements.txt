@@ -8,4 +8,5 @@ seaborn>=0.12
 # Development and notebook validation
 jupyter>=1.0
 nbformat>=5.9
+pytest>=7.4
 ruff>=0.6

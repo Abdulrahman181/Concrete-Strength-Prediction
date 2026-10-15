@@ -63,3 +63,58 @@ The following checks passed locally:
 - The Sandbox did not have `scikit-learn`, `xgboost`, `nbformat`, or `nbconvert` importable during the audit. Ruff and the standard-library validation/compile checks were available and passed. Installing `requirements.txt` is required before opening/executing the notebook in a complete environment.
 - The repaired notebook intentionally uses only the core dependencies declared in `requirements.txt`; it does not retain an optional XGBoost cell whose dependency was undeclared and unavailable.
 - The single holdout split is suitable as a deterministic baseline, not as a final model-selection protocol. Add cross-validation and an untouched final test protocol before using results for a production or scientific claim.
+
+## Second Senior Review
+
+### Scope and findings
+
+This second pass re-read every tracked Python, notebook, configuration, dependency,
+README, data-contract, and review file; inspected the repair history (`2d33ca7` to
+`fa34c8f`); and re-ran static checks and tests. The repaired notebook had no remaining
+syntax errors, stale outputs, execution counts, Windows paths, or obvious train/test
+leakage. The remaining material issues were:
+
+1. **The loader was notebook-only and not unit-testable.** Its data contract could not
+   be tested independently, and the project had no tests; `pytest -q` therefore found
+   no tests.
+2. **Malformed values were not fully guarded.** The previous loader did not explicitly
+   reject non-finite values such as `inf`, did not give a deliberate empty-CSV error,
+   and accepted too few rows for a meaningful two-observation test holdout/R².
+3. **CSV schema edge cases were under-specified.** Duplicate header names could be
+   silently mangled by pandas, and the flat-layout project lacked pytest import
+   configuration when tests were added.
+
+### Repairs made
+
+- Added `concrete_strength.py` as the reusable loader and schema contract used by the
+  notebook. It now handles missing/empty/parser-error files, duplicate headers,
+  missing columns, non-numeric values, missing values, non-finite values, duplicate
+  rows, and the six-unique-row minimum needed by the documented holdout metrics.
+- Refactored notebook cells to import that loader and constants, while retaining a
+  deterministic split (`random_state=42`) and training-only pipeline scaling.
+- Added six focused tests in `tests/test_concrete_strength.py` covering valid loading,
+  deduplication, invalid values, missing columns, too-small datasets, and duplicate
+  headers; added `pytest` and flat-layout `pythonpath`/`testpaths` configuration.
+- Updated README and `data/README.md` to document the stricter contract and test
+  command. Notebook outputs and execution counts remain cleared.
+
+### Second-pass validation
+
+| Check | Result |
+|---|---|
+| `python3 validate_repo.py` | Passed |
+| `ruff check . --output-format concise` | Passed |
+| `python3 -m compileall -q .` | Passed |
+| `pytest -q` | Passed — 6 tests |
+| Notebook JSON/AST/output/path hygiene | Passed |
+| End-to-end model execution | Not run — source dataset is intentionally absent |
+
+### Remaining risks and non-claims
+
+- No model scores or end-to-end execution are claimed because `data/Concrete_Data_Yeh.csv`
+  is not checked in and no substitute dataset was invented.
+- The workflow still uses one deterministic holdout and has no persisted model or
+  prediction API; cross-validation, an untouched final test set, and artifact-serving
+  code remain future work.
+- Dependency ranges are minimum-version declarations rather than a fully locked
+  environment, so reproducibility across future dependency releases is not absolute.

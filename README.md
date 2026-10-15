@@ -10,11 +10,11 @@ Place the CSV at `data/Concrete_Data_Yeh.csv`, or point the notebook at another 
 export CONCRETE_DATA_PATH=/absolute/path/to/Concrete_Data_Yeh.csv
 ```
 
-The CSV must contain these columns:
+The CSV must contain these columns and at least six unique, finite rows:
 
 `cement`, `slag`, `flyash`, `water`, `superplasticizer`, `coarseaggregate`, `fineaggregate`, `age`, and `csMPa`.
 
-The notebook fails early with an actionable error when the file is missing, required columns are absent, values are non-numeric, or missing values remain after loading. See [`data/README.md`](data/README.md) for the same contract.
+The notebook fails early with an actionable error when the file is missing, required columns are absent, values are non-numeric or non-finite, missing values remain after loading, or the dataset is too small for a two-row test holdout. Duplicate rows are removed before this minimum-size check. See [`data/README.md`](data/README.md) for the same contract.
 
 ## Workflow and safeguards
 
@@ -34,6 +34,7 @@ python -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
 python validate_repo.py
+pytest -q
 jupyter notebook "Concrete Strength Prediction.ipynb"
 ```
 
@@ -48,6 +49,8 @@ The notebook cannot complete until a compatible dataset is supplied. This reposi
 ## Project files
 
 - `Concrete Strength Prediction.ipynb` — portable EDA and deterministic baseline comparison (linear regression and random forest).
+- `concrete_strength.py` — reusable dataset schema and value validation used by the notebook.
+- `tests/test_concrete_strength.py` — regression tests for loading and validation edge cases.
 - `requirements.txt` — runtime and validation dependencies.
 - `validate_repo.py` — dependency-light static validation.
 - `data/README.md` — input data contract.
